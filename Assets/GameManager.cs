@@ -19,6 +19,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] TMP_Text textScore1;
     [SerializeField] TMP_Text textScore2;
 
+    [SerializeField] GameObject gameOverText;
+
     private void Update()
     {
         if (gameRunning) return;
@@ -38,6 +40,26 @@ public class GameManager : MonoBehaviour
         else 
             score2++;
 
+        DisplayScore();
+
+        if(score1 >= 2 || score2 >= 2)
+        {
+            StartCoroutine(GameOverRoutine());
+        }
+    }
+
+    IEnumerator GameOverRoutine()
+    {
+        gameOverText.SetActive(true);
+
+        while(!Input.GetKeyDown(KeyCode.Return))
+            yield return null;
+        
+        gameOverText.SetActive(false);
+        score1 = 0;
+        score2 = 0;
+
+        gameRunning = false;
         DisplayScore();
     }
 
