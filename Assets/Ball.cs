@@ -28,7 +28,8 @@ public class Ball : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         bool player1Score = other.name == "WallE";
-        GameManager.Instance.Score(player1Score);
+        GameManager.Instance?.Score(player1Score);
+        OnlineGameManager.Instance?.Score(player1Score);
         Stop();
     }
 }
