@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class OnlineGameManager : MonoBehaviour
+public class OnlineGameManager : MonoBehaviourPunCallbacks
 {
     public static OnlineGameManager Instance;
     private void Awake()
@@ -13,6 +13,7 @@ public class OnlineGameManager : MonoBehaviour
     }
 
     bool gameRunning;
+    bool gameOver;
     int score1, score2;
 
     [SerializeField] Ball ball;
@@ -43,10 +44,11 @@ public class OnlineGameManager : MonoBehaviour
 
     private void Update()
     {
-        if (gameRunning) return;
+        if (gameRunning || gameOver) return;
 
-        if(Input.GetKeyDown(KeyCode.Space))
+        if(Input.GetKeyDown(KeyCode.Space) && PhotonNetwork.IsMasterClient)
         {
+            PhotonNetwork.CurrentRoom.IsOpen = false;
             gameRunning = true;
             ball.StartBall();
         }
@@ -70,11 +72,19 @@ public class OnlineGameManager : MonoBehaviour
 
     IEnumerator GameOverRoutine()
     {
+        gameOver = true;
         gameOverText.SetActive(true);
 
         while(!Input.GetKeyDown(KeyCode.Return))
             yield return null;
-        
+
+        photonView.RPC(nameof(RestartGame), RpcTarget.All, null);
+    }
+
+    [PunRPC]
+    void RestartGame()
+    {
+        gameOver = false;
         gameOverText.SetActive(false);
         score1 = 0;
         score2 = 0;
